@@ -3,7 +3,8 @@ package com.reservas.ms_notificaciones.controller;
 import com.reservas.commons.dto.ContactInquiryCreateDto;
 import com.reservas.commons.dto.ContactInquiryDto;
 import com.reservas.ms_notificaciones.config.PaginationProperties;
-import com.reservas.ms_notificaciones.dto.PageResponseDto;
+import com.reservas.commons.dto.PageResponseDto;
+import com.reservas.commons.web.PaginatedBaseController;
 import com.reservas.ms_notificaciones.service.ContactInquiryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,7 +25,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("${app.api.base-path:}/contact")
 @Tag(name = "Contact", description = "Public contact form forwarded to the platform support")
-public class ContactInquiryController extends BaseController {
+public class ContactInquiryController extends PaginatedBaseController {
 
     private final ContactInquiryService service;
 

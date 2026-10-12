@@ -3,7 +3,8 @@ package com.reservas.ms_notificaciones.controller;
 import com.reservas.commons.dto.EmailTemplateDto;
 import com.reservas.ms_notificaciones.config.PaginationProperties;
 import com.reservas.ms_notificaciones.dto.EmailTemplateRequestDto;
-import com.reservas.ms_notificaciones.dto.PageResponseDto;
+import com.reservas.commons.dto.PageResponseDto;
+import com.reservas.commons.web.PaginatedBaseController;
 import com.reservas.ms_notificaciones.service.EmailTemplateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +27,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("${app.api.base-path:}/email-templates")
 @Tag(name = "Email templates", description = "Email templates configurable by the administrator (simple entity)")
-public class EmailTemplateController extends BaseController {
+public class EmailTemplateController extends PaginatedBaseController {
 
     private final EmailTemplateService service;
 

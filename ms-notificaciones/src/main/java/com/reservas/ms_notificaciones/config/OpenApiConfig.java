@@ -2,9 +2,13 @@ package com.reservas.ms_notificaciones.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class OpenApiConfig {
@@ -16,5 +20,11 @@ public class OpenApiConfig {
             @Value("${app.openapi.version:1.0.0}") String version
     ) {
         return new OpenAPI().info(new Info().title(name).description(description).version(version));
+    }
+
+    @Bean
+    public OpenApiCustomizer gatewayServerUrl(@Value("${app.openapi.server-url}") String gatewayUrl) {
+        return openApi -> openApi.servers(List.of(
+                new Server().url(gatewayUrl).description("API Gateway")));
     }
 }

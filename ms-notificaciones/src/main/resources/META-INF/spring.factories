@@ -1,0 +1,1 @@
+org.springframework.boot.EnvironmentPostProcessor=com.reservas.ms_notificaciones.config.DotenvEnvironmentPostProcessor

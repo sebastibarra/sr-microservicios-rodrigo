@@ -4,7 +4,8 @@ import com.reservas.commons.dto.ReservationCreateDto;
 import com.reservas.commons.dto.ReservationDto;
 import com.reservas.commons.enums.ReservationStatus;
 import com.reservas.ms_reservas.config.PaginationProperties;
-import com.reservas.ms_reservas.dto.PageResponseDto;
+import com.reservas.commons.dto.PageResponseDto;
+import com.reservas.commons.web.PaginatedBaseController;
 import com.reservas.ms_reservas.dto.ReservationFilter;
 import com.reservas.ms_reservas.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +32,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("${app.api.base-path:}/reservations")
 @Tag(name = "Reservations", description = "Reservations (header) with their consultation types (detail, many-to-many)")
-public class ReservationController extends BaseController {
+public class ReservationController extends PaginatedBaseController {
 
     private final ReservationService service;
 

@@ -3,7 +3,8 @@ package com.reservas.ms_reservas.controller;
 import com.reservas.commons.dto.CatalogDto;
 import com.reservas.ms_reservas.config.PaginationProperties;
 import com.reservas.ms_reservas.dto.ConsultationTypeRequestDto;
-import com.reservas.ms_reservas.dto.PageResponseDto;
+import com.reservas.commons.dto.PageResponseDto;
+import com.reservas.commons.web.PaginatedBaseController;
 import com.reservas.ms_reservas.service.ConsultationTypeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +27,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("${app.api.base-path:}/consultation-types")
 @Tag(name = "Consultation types", description = "Catalog of consultation types (simple entity)")
-public class ConsultationTypeController extends BaseController {
+public class ConsultationTypeController extends PaginatedBaseController {
 
     private final ConsultationTypeService service;
 
