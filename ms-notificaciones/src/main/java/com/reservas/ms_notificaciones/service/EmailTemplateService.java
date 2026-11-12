@@ -11,6 +11,8 @@ import com.reservas.ms_notificaciones.repository.EmailTemplateRepository;
 import com.reservas.ms_notificaciones.repository.spec.EmailTemplateSpecifications;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,7 @@ public class EmailTemplateService extends BaseService<EmailTemplate> {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"email-templates", "email-templates-by-code"}, allEntries = true)
     public EmailTemplateDto create(EmailTemplateRequestDto request) {
         log.info("Creating email template '{}'", request.code());
         if (repository.existsByCode(request.code().trim())) {
@@ -40,6 +43,7 @@ public class EmailTemplateService extends BaseService<EmailTemplate> {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"email-templates", "email-templates-by-code"}, allEntries = true)
     public EmailTemplateDto update(UUID id, EmailTemplateRequestDto request) {
         log.info("Updating email template {}", id);
         EmailTemplate entity = findOrThrow(id);
@@ -51,6 +55,7 @@ public class EmailTemplateService extends BaseService<EmailTemplate> {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "email-templates", key = "#id")
     public EmailTemplateDto get(UUID id) {
         return mapper.toDto(findOrThrow(id));
     }
@@ -68,6 +73,7 @@ public class EmailTemplateService extends BaseService<EmailTemplate> {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"email-templates", "email-templates-by-code"}, allEntries = true)
     public EmailTemplateDto deactivate(UUID id) {
         log.info("Deactivating email template {}", id);
         EmailTemplate entity = findOrThrow(id);
@@ -76,6 +82,7 @@ public class EmailTemplateService extends BaseService<EmailTemplate> {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "email-templates-by-code", key = "#code")
     public EmailTemplate getActiveByCode(String code) {
         EmailTemplate template = repository.findByCode(code).orElseThrow(() -> {
             log.warn("Email template with code {} not found", code);
