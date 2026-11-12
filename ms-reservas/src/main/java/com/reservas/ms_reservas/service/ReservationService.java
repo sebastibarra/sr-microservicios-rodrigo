@@ -16,6 +16,8 @@ import com.reservas.ms_reservas.dto.ReservationFilter;
 import com.reservas.ms_reservas.mapper.ReservationMapper;
 import com.reservas.ms_reservas.repository.ReservationRepository;
 import com.reservas.ms_reservas.repository.spec.ReservationSpecifications;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -63,6 +65,7 @@ public class ReservationService extends BaseService<Reservation> {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "reservations", allEntries = true)
     public ReservationDto create(ReservationCreateDto request) {
         log.info("Creating reservation student={} timeSlot={}", request.getStudentId(), request.getTimeSlotId());
         Set<UUID> typeIds = requireUniqueTypes(request.getDetails());
@@ -80,6 +83,7 @@ public class ReservationService extends BaseService<Reservation> {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "reservations", allEntries = true)
     public ReservationDto update(UUID id, ReservationCreateDto request) {
         log.info("Updating reservation {}", id);
         Reservation reservation = getModifiableEntity(id);
@@ -97,6 +101,7 @@ public class ReservationService extends BaseService<Reservation> {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "reservations", key = "#id")
     public ReservationDto get(UUID id) {
         return mapper.toDto(findOrThrow(id));
     }
@@ -114,6 +119,7 @@ public class ReservationService extends BaseService<Reservation> {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "reservations", allEntries = true)
     public ReservationDto cancel(UUID id) {
         log.info("Cancelling reservation {}", id);
         Reservation reservation = findOrThrow(id);

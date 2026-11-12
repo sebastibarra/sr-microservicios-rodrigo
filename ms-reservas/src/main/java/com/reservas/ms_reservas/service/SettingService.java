@@ -2,6 +2,7 @@ package com.reservas.ms_reservas.service;
 
 import com.reservas.commons.entity.Setting;
 import com.reservas.ms_reservas.repository.SettingRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ public class SettingService extends BaseService<Setting> {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "settings", key = "#key + ':' + #defaultValue")
     public int getInt(String key, int defaultValue) {
         return repository.findBySettingKey(key)
                 .map(Setting::getValue)

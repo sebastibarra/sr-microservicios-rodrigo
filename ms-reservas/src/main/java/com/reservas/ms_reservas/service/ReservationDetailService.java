@@ -10,6 +10,8 @@ import com.reservas.commons.exception.InvalidOperationException;
 import com.reservas.commons.exception.ResourceNotFoundException;
 import com.reservas.ms_reservas.mapper.ReservationDetailMapper;
 import com.reservas.ms_reservas.repository.ReservationDetailRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -46,11 +48,13 @@ public class ReservationDetailService extends BaseService<ReservationDetail> {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "reservation-details", key = "#reservationId + ':' + #detailId")
     public ReservationDetailDto get(UUID reservationId, UUID detailId) {
         return mapper.toDto(findInReservation(reservationId, detailId));
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"reservations", "reservation-details"}, allEntries = true)
     public ReservationDetailDto add(UUID reservationId, ReservationDetailCreateDto request) {
         log.info("Adding consultation type {} to reservation {}", request.getConsultationTypeId(), reservationId);
         reservationService.validateComment(request.getComment());
@@ -61,6 +65,7 @@ public class ReservationDetailService extends BaseService<ReservationDetail> {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"reservations", "reservation-details"}, allEntries = true)
     public ReservationDetailDto update(UUID reservationId, UUID detailId, ReservationDetailCreateDto request) {
         log.info("Updating detail {} of reservation {}", detailId, reservationId);
         reservationService.validateComment(request.getComment());
@@ -75,6 +80,7 @@ public class ReservationDetailService extends BaseService<ReservationDetail> {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"reservations", "reservation-details"}, allEntries = true)
     public void remove(UUID reservationId, UUID detailId) {
         log.info("Removing detail {} from reservation {}", detailId, reservationId);
         reservationService.getModifiableEntity(reservationId);

@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,7 @@ public class ReservationDetailController extends PaginatedBaseController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'ADMINISTRATOR')")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Associate a consultation type to the reservation")
     public ReservationDetailDto add(
@@ -48,6 +50,7 @@ public class ReservationDetailController extends PaginatedBaseController {
     }
 
     @PutMapping("/{detailId}")
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @Operation(summary = "Update an association (consultation type or comment)")
     public ReservationDetailDto update(
             @PathVariable UUID reservationId,
@@ -59,6 +62,7 @@ public class ReservationDetailController extends PaginatedBaseController {
     }
 
     @GetMapping("/{detailId}")
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @Operation(summary = "Get an association by id")
     public ReservationDetailDto get(@PathVariable UUID reservationId, @PathVariable UUID detailId) {
         log.info("GET /reservations/{}/details/{}", reservationId, detailId);
@@ -66,6 +70,7 @@ public class ReservationDetailController extends PaginatedBaseController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @Operation(summary = "List the consultation types of a reservation (paginated)")
     public PageResponseDto<ReservationDetailDto> list(
             @PathVariable UUID reservationId,
@@ -77,6 +82,7 @@ public class ReservationDetailController extends PaginatedBaseController {
     }
 
     @DeleteMapping("/{detailId}")
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Remove an association (a reservation keeps at least one consultation type)")
     public void remove(@PathVariable UUID reservationId, @PathVariable UUID detailId) {

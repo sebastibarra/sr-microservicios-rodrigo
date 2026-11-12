@@ -10,6 +10,7 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -44,6 +45,8 @@ class ReservationFlowIntegrationTest {
     TransactionTemplate tx;
     @Autowired
     JwtTokenProvider tokenProvider;
+    @Autowired
+    CacheManager cacheManager;
 
     UUID studentId;
     UUID slotId;
@@ -119,10 +122,21 @@ class ReservationFlowIntegrationTest {
                 .andExpect(jsonPath("$.details.length()").value(1))
                 .andExpect(jsonPath("$.details[0].consultationType.id").value(chapter.toString()));
 
-        mvc.perform(asAdmin(delete("/reservations/" + reservationId)))
+        mvc.perform(asAdmin(get("/reservations/" + reservationId)))
+                .andExpect(status().isOk());
+        org.junit.jupiter.api.Assertions.assertNotNull(
+                cacheManager.getCache("reservations").get(UUID.fromString(reservationId)),
+                "The individual reservation should be cached by ID"
+        );
+
+        mvc.perform(asRole(post("/reservations/" + reservationId + "/cancellation"), Role.PROFESSOR))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("CANCELLED"))
                 .andExpect(jsonPath("$.timeSlot.status").value("AVAILABLE"));
+        org.junit.jupiter.api.Assertions.assertNull(
+                cacheManager.getCache("reservations").get(UUID.fromString(reservationId)),
+                "Changing a reservation should evict its cached representation"
+        );
 
         mvc.perform(asAdmin(post("/reservations").contentType(MediaType.APPLICATION_JSON)
                         .content(reservationBody(slotId, methodology, null))))
