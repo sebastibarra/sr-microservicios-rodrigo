@@ -10,6 +10,8 @@ import com.reservas.ms_notificaciones.mapper.ContactInquiryMapper;
 import com.reservas.ms_notificaciones.repository.ContactInquiryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.HtmlUtils;
@@ -40,6 +42,7 @@ public class ContactInquiryService extends BaseService<ContactInquiry> {
         this.mailSettings = mailSettings;
     }
 
+    @CacheEvict(cacheNames = "contact-inquiries", allEntries = true)
     public ContactInquiryDto create(ContactInquiryCreateDto request) {
         log.info("Registering contact inquiry from {}", request.getEmail());
         validate(request);
@@ -49,6 +52,7 @@ public class ContactInquiryService extends BaseService<ContactInquiry> {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "contact-inquiries", key = "#id")
     public ContactInquiryDto get(UUID id) {
         return mapper.toDto(findOrThrow(id));
     }

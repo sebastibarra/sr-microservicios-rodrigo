@@ -8,6 +8,7 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -40,6 +41,8 @@ class NotificationFlowIntegrationTest {
     TransactionTemplate tx;
     @Autowired
     JwtTokenProvider tokenProvider;
+    @Autowired
+    CacheManager cacheManager;
 
     UUID userId;
 
@@ -89,6 +92,10 @@ class NotificationFlowIntegrationTest {
         mvc.perform(asAdmin(get("/email-templates/" + id)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.active").value(false));
+        org.junit.jupiter.api.Assertions.assertNotNull(
+                cacheManager.getCache("email-templates").get(UUID.fromString(id)),
+                "The individual template should be cached by ID"
+        );
         mvc.perform(asAdmin(get("/email-templates").param("size", "1")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.page.size").value(1));

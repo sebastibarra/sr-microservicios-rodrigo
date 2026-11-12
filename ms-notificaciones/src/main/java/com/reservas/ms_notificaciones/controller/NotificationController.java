@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +39,7 @@ public class NotificationController extends PaginatedBaseController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Send a notification to a user using the template of its type")
     public NotificationDto send(@Valid @RequestBody NotificationRequestDto request) {
@@ -46,6 +48,7 @@ public class NotificationController extends PaginatedBaseController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "Get a notification by id")
     public NotificationDto get(@PathVariable UUID id) {
         log.info("GET /notifications/{}", id);
@@ -53,6 +56,7 @@ public class NotificationController extends PaginatedBaseController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "List notifications (paginated)")
     public PageResponseDto<NotificationDto> list(
             @RequestParam(defaultValue = "0") @Min(0) int page,
@@ -63,6 +67,7 @@ public class NotificationController extends PaginatedBaseController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "Search notifications by user, type and status (paginated)")
     public PageResponseDto<NotificationDto> search(
             @RequestParam(required = false) UUID userId,

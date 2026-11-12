@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,7 @@ public class EmailTemplateController extends PaginatedBaseController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create an email template")
     public EmailTemplateDto create(@Valid @RequestBody EmailTemplateRequestDto request) {
@@ -45,6 +47,7 @@ public class EmailTemplateController extends PaginatedBaseController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "Update an email template")
     public EmailTemplateDto update(@PathVariable UUID id, @Valid @RequestBody EmailTemplateRequestDto request) {
         log.info("PUT /email-templates/{}", id);
@@ -52,6 +55,7 @@ public class EmailTemplateController extends PaginatedBaseController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "Get an email template by id")
     public EmailTemplateDto get(@PathVariable UUID id) {
         log.info("GET /email-templates/{}", id);
@@ -59,6 +63,7 @@ public class EmailTemplateController extends PaginatedBaseController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "List email templates (paginated)")
     public PageResponseDto<EmailTemplateDto> list(
             @RequestParam(defaultValue = "0") @Min(0) int page,
@@ -69,6 +74,7 @@ public class EmailTemplateController extends PaginatedBaseController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "Search email templates by code/subject and status (paginated)")
     public PageResponseDto<EmailTemplateDto> search(
             @RequestParam(required = false) String text,
@@ -81,6 +87,7 @@ public class EmailTemplateController extends PaginatedBaseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "Logical delete: marks the email template as inactive")
     public EmailTemplateDto delete(@PathVariable UUID id) {
         log.info("DELETE /email-templates/{}", id);

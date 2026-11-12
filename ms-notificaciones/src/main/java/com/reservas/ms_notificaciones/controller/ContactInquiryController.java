@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +36,7 @@ public class ContactInquiryController extends PaginatedBaseController {
     }
 
     @PostMapping
+    @PreAuthorize("permitAll()")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Send a contact inquiry to support")
     public ContactInquiryDto create(@Valid @RequestBody ContactInquiryCreateDto request) {
@@ -43,6 +45,7 @@ public class ContactInquiryController extends PaginatedBaseController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "Get a contact inquiry by id")
     public ContactInquiryDto get(@PathVariable UUID id) {
         log.info("GET /contact/{}", id);
@@ -50,6 +53,7 @@ public class ContactInquiryController extends PaginatedBaseController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "List contact inquiries (paginated)")
     public PageResponseDto<ContactInquiryDto> list(
             @RequestParam(defaultValue = "0") @Min(0) int page,

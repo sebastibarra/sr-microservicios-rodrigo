@@ -14,6 +14,8 @@ import com.reservas.ms_notificaciones.repository.NotificationRepository;
 import com.reservas.ms_notificaciones.repository.spec.NotificationSpecifications;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +55,7 @@ public class NotificationService extends BaseService<Notification> {
         this.clock = clock;
     }
 
+    @CacheEvict(cacheNames = "notifications", allEntries = true)
     public NotificationDto send(NotificationRequestDto request) {
         log.info("Sending {} notification to user {}", request.type(), request.userId());
         User user = userService.getActiveUser(request.userId());
@@ -78,6 +81,7 @@ public class NotificationService extends BaseService<Notification> {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "notifications", key = "#id")
     public NotificationDto get(UUID id) {
         return mapper.toDto(findOrThrow(id));
     }
