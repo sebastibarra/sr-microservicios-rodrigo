@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +43,7 @@ public class ReservationController extends PaginatedBaseController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'ADMINISTRATOR')")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a reservation with one or more consultation types")
     @ApiResponse(responseCode = "409", description = "The time slot is already taken")
@@ -51,6 +53,7 @@ public class ReservationController extends PaginatedBaseController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @Operation(summary = "Update a reservation (time slot and consultation types)")
     public ReservationDto update(@PathVariable UUID id, @Valid @RequestBody ReservationCreateDto request) {
         log.info("PUT /reservations/{}", id);
@@ -58,6 +61,7 @@ public class ReservationController extends PaginatedBaseController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @Operation(summary = "Get a reservation by id")
     public ReservationDto get(@PathVariable UUID id) {
         log.info("GET /reservations/{}", id);
@@ -65,6 +69,7 @@ public class ReservationController extends PaginatedBaseController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @Operation(summary = "List reservations (paginated)")
     public PageResponseDto<ReservationDto> list(
             @RequestParam(defaultValue = "0") @Min(0) int page,
@@ -75,6 +80,7 @@ public class ReservationController extends PaginatedBaseController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @Operation(summary = "Search reservations by student, professor, consultation type, status and date range (paginated)")
     public PageResponseDto<ReservationDto> search(
             @RequestParam(required = false) UUID studentId,
@@ -92,6 +98,7 @@ public class ReservationController extends PaginatedBaseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @Operation(summary = "Logical delete: cancels the reservation and releases its time slot")
     public ReservationDto delete(@PathVariable UUID id) {
         log.info("DELETE /reservations/{}", id);
@@ -99,6 +106,7 @@ public class ReservationController extends PaginatedBaseController {
     }
 
     @PostMapping("/{id}/cancellation")
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @Operation(summary = "Cancel a reservation (same effect as DELETE)")
     public ReservationDto cancel(@PathVariable UUID id) {
         log.info("POST /reservations/{}/cancellation", id);

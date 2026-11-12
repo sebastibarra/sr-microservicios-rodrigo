@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,7 @@ public class ConsultationTypeController extends PaginatedBaseController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a consultation type")
     public CatalogDto create(@Valid @RequestBody ConsultationTypeRequestDto request) {
@@ -45,6 +47,7 @@ public class ConsultationTypeController extends PaginatedBaseController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "Update a consultation type")
     public CatalogDto update(@PathVariable UUID id, @Valid @RequestBody ConsultationTypeRequestDto request) {
         log.info("PUT /consultation-types/{}", id);
@@ -52,6 +55,7 @@ public class ConsultationTypeController extends PaginatedBaseController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @Operation(summary = "Get a consultation type by id")
     public CatalogDto get(@PathVariable UUID id) {
         log.info("GET /consultation-types/{}", id);
@@ -59,6 +63,7 @@ public class ConsultationTypeController extends PaginatedBaseController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @Operation(summary = "List consultation types (paginated)")
     public PageResponseDto<CatalogDto> list(
             @RequestParam(defaultValue = "0") @Min(0) int page,
@@ -69,6 +74,7 @@ public class ConsultationTypeController extends PaginatedBaseController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasAnyAuthority('STUDENT', 'PROFESSOR', 'ADMINISTRATOR')")
     @Operation(summary = "Search consultation types by name and status (paginated)")
     public PageResponseDto<CatalogDto> search(
             @RequestParam(required = false) String name,
@@ -81,6 +87,7 @@ public class ConsultationTypeController extends PaginatedBaseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "Logical delete: marks the consultation type as inactive")
     public CatalogDto delete(@PathVariable UUID id) {
         log.info("DELETE /consultation-types/{}", id);

@@ -8,6 +8,8 @@ import com.reservas.ms_reservas.dto.ConsultationTypeRequestDto;
 import com.reservas.ms_reservas.mapper.ConsultationTypeMapper;
 import com.reservas.ms_reservas.repository.ConsultationTypeRepository;
 import com.reservas.ms_reservas.repository.spec.ConsultationTypeSpecifications;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ public class ConsultationTypeService extends BaseService<ConsultationType> {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"consultation-types", "active-consultation-types"}, allEntries = true)
     public CatalogDto create(ConsultationTypeRequestDto request) {
         log.info("Creating consultation type '{}'", request.name());
         if (repository.existsByNameIgnoreCase(request.name().trim())) {
@@ -45,6 +48,7 @@ public class ConsultationTypeService extends BaseService<ConsultationType> {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"consultation-types", "active-consultation-types"}, allEntries = true)
     public CatalogDto update(UUID id, ConsultationTypeRequestDto request) {
         log.info("Updating consultation type {}", id);
         ConsultationType entity = findOrThrow(id);
@@ -56,6 +60,7 @@ public class ConsultationTypeService extends BaseService<ConsultationType> {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "consultation-types", key = "#id")
     public CatalogDto get(UUID id) {
         return mapper.toDto(findOrThrow(id));
     }
@@ -73,6 +78,7 @@ public class ConsultationTypeService extends BaseService<ConsultationType> {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"consultation-types", "active-consultation-types"}, allEntries = true)
     public CatalogDto deactivate(UUID id) {
         log.info("Deactivating consultation type {}", id);
         ConsultationType entity = findOrThrow(id);
@@ -81,6 +87,7 @@ public class ConsultationTypeService extends BaseService<ConsultationType> {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "active-consultation-types", key = "#id")
     public ConsultationType getActiveEntity(UUID id) {
         ConsultationType entity = findOrThrow(id);
         assertActive(entity);
