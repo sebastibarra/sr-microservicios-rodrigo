@@ -13,6 +13,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -95,7 +98,11 @@ public class ReservationController extends PaginatedBaseController {
     ) {
         ReservationFilter filter = new ReservationFilter(studentId, professorId, consultationTypeId, status, dateFrom, dateTo, q);
         log.info("GET /reservations/search {} page={} size={}", filter, page, size);
-        return toResponse(service.search(filter, pageable(page, size)));
+        // Orden cronológico del turno (más reciente primero) para que el listado sea legible.
+        Pageable bounded = pageable(page, size);
+        Pageable byAppointment = PageRequest.of(bounded.getPageNumber(), bounded.getPageSize(),
+                Sort.by(Sort.Order.desc("timeSlot.slotDate"), Sort.Order.desc("timeSlot.startTime")));
+        return toResponse(service.search(filter, byAppointment));
     }
 
     @DeleteMapping("/{id}")

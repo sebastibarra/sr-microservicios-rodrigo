@@ -1,9 +1,12 @@
 package com.reservas.ms_reservas.repository.spec;
 
 import com.reservas.commons.entity.Reservation;
+import com.reservas.commons.entity.ReservationDetail;
 import com.reservas.ms_reservas.dto.ReservationFilter;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
@@ -33,20 +36,28 @@ public final class ReservationSpecifications {
                 predicates.add(cb.lessThanOrEqualTo(root.get("timeSlot").get("slotDate"), filter.dateTo()));
             }
             if (filter.consultationTypeId() != null) {
-                query.distinct(true);
-                predicates.add(cb.equal(root.join("details").get("consultationType").get("id"), filter.consultationTypeId()));
+                // EXISTS en vez de JOIN + DISTINCT: permite ordenar por la fecha del turno sin duplicar filas.
+                Subquery<ReservationDetail> byType = query.subquery(ReservationDetail.class);
+                Root<ReservationDetail> detail = byType.from(ReservationDetail.class);
+                byType.select(detail).where(
+                        cb.equal(detail.get("reservation"), root),
+                        cb.equal(detail.get("consultationType").get("id"), filter.consultationTypeId()));
+                predicates.add(cb.exists(byType));
             }
             if (filter.q() != null && !filter.q().isBlank()) {
                 // Texto libre: nombre del estudiante, del profesor o del tipo de consulta.
-                query.distinct(true);
                 String like = "%" + filter.q().trim().toLowerCase() + "%";
                 var student = root.join("student", JoinType.INNER);
                 var professor = root.join("timeSlot", JoinType.INNER).join("professor", JoinType.INNER);
-                var type = root.join("details", JoinType.LEFT).join("consultationType", JoinType.LEFT);
+                Subquery<ReservationDetail> byTypeName = query.subquery(ReservationDetail.class);
+                Root<ReservationDetail> detail = byTypeName.from(ReservationDetail.class);
+                byTypeName.select(detail).where(
+                        cb.equal(detail.get("reservation"), root),
+                        cb.like(cb.lower(detail.get("consultationType").get("name")), like));
                 predicates.add(cb.or(
                         cb.like(cb.lower(cb.concat(cb.concat(student.get("firstName"), " "), student.get("lastName"))), like),
                         cb.like(cb.lower(cb.concat(cb.concat(professor.get("firstName"), " "), professor.get("lastName"))), like),
-                        cb.like(cb.lower(type.get("name")), like)
+                        cb.exists(byTypeName)
                 ));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
