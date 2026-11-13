@@ -52,6 +52,8 @@ public class CacheConfiguration {
 				.cacheDefaults(defaults)
 				.withInitialCacheConfigurations(domains)
 				.build();
+		// Carga las configuraciones por dominio (TTL de cada caché); sin esto, al envolverlo, todas usarían el TTL por defecto.
+		redisCacheManager.afterPropertiesSet();
 		return new LoggingCacheManager(redisCacheManager);
 	}
 
