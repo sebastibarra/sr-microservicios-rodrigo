@@ -2,6 +2,7 @@ package com.reservas.ms_reservas.repository.spec;
 
 import com.reservas.commons.entity.Reservation;
 import com.reservas.ms_reservas.dto.ReservationFilter;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -34,6 +35,19 @@ public final class ReservationSpecifications {
             if (filter.consultationTypeId() != null) {
                 query.distinct(true);
                 predicates.add(cb.equal(root.join("details").get("consultationType").get("id"), filter.consultationTypeId()));
+            }
+            if (filter.q() != null && !filter.q().isBlank()) {
+                // Texto libre: nombre del estudiante, del profesor o del tipo de consulta.
+                query.distinct(true);
+                String like = "%" + filter.q().trim().toLowerCase() + "%";
+                var student = root.join("student", JoinType.INNER);
+                var professor = root.join("timeSlot", JoinType.INNER).join("professor", JoinType.INNER);
+                var type = root.join("details", JoinType.LEFT).join("consultationType", JoinType.LEFT);
+                predicates.add(cb.or(
+                        cb.like(cb.lower(cb.concat(cb.concat(student.get("firstName"), " "), student.get("lastName"))), like),
+                        cb.like(cb.lower(cb.concat(cb.concat(professor.get("firstName"), " "), professor.get("lastName"))), like),
+                        cb.like(cb.lower(type.get("name")), like)
+                ));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };

@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 
@@ -34,7 +36,7 @@ public class CacheConfiguration {
 				.disableCachingNullValues()
 				.computePrefixWith(name -> properties.getKeyPrefix() + ":" + name + ":")
 				.serializeValuesWith(RedisSerializationContext.SerializationPair
-						.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+						.fromSerializer(redisValueSerializer()));
 		Map<String, RedisCacheConfiguration> domains = new LinkedHashMap<>();
 		properties.getDomains().forEach((name, domain) -> {
 			if (domain == null) {
@@ -51,6 +53,14 @@ public class CacheConfiguration {
 				.withInitialCacheConfigurations(domains)
 				.build();
 		return new LoggingCacheManager(redisCacheManager);
+	}
+
+	/** JSON con soporte de fechas (LocalDate/LocalTime/OffsetDateTime de los DTOs). */
+	private static GenericJackson2JsonRedisSerializer redisValueSerializer() {
+		return new GenericJackson2JsonRedisSerializer().configure(mapper -> {
+			mapper.registerModule(new JavaTimeModule());
+			mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		});
 	}
 
 	private static Duration requirePositiveTtl(Duration ttl, String property) {

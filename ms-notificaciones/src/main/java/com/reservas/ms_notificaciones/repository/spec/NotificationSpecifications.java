@@ -25,6 +25,15 @@ public final class NotificationSpecifications {
             if (filter.status() != null) {
                 predicates.add(cb.equal(root.get("status"), filter.status()));
             }
+            if (filter.q() != null && !filter.q().isBlank()) {
+                // Texto libre: nombre, apellido o correo del destinatario.
+                String like = "%" + filter.q().trim().toLowerCase() + "%";
+                var user = root.join("user");
+                predicates.add(cb.or(
+                        cb.like(cb.lower(cb.concat(cb.concat(user.get("firstName"), " "), user.get("lastName"))), like),
+                        cb.like(cb.lower(user.get("email")), like)
+                ));
+            }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }

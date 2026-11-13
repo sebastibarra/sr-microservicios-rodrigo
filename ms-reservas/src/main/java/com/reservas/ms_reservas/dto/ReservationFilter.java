@@ -11,6 +11,13 @@ public record ReservationFilter(
         UUID consultationTypeId,
         ReservationStatus status,
         LocalDate dateFrom,
-        LocalDate dateTo
+        LocalDate dateTo,
+        String q
 ) {
+
+    /** Compatibilidad: filtro sin texto libre. */
+    public ReservationFilter(UUID studentId, UUID professorId, UUID consultationTypeId,
+                             ReservationStatus status, LocalDate dateFrom, LocalDate dateTo) {
+        this(studentId, professorId, consultationTypeId, status, dateFrom, dateTo, null);
+    }
 }

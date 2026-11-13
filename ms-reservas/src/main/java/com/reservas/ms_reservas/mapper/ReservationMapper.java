@@ -29,6 +29,7 @@ public class ReservationMapper {
         return new ReservationDto()
                 .id(entity.getId())
                 .studentId(entity.getStudent().getId())
+                .studentName(TimeSlotMapper.fullName(entity.getStudent()))
                 .timeSlot(timeSlotMapper.toDto(entity.getTimeSlot()))
                 .status(ReservationStatusDto.fromValue(entity.getStatus().name()))
                 .details(entity.getDetails().stream()

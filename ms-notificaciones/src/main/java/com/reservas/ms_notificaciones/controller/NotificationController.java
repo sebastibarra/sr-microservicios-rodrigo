@@ -73,10 +73,11 @@ public class NotificationController extends PaginatedBaseController {
             @RequestParam(required = false) UUID userId,
             @RequestParam(required = false) NotificationType type,
             @RequestParam(required = false) NotificationStatus status,
+            @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "${app.pagination.default-size:10}") @Min(1) int size
     ) {
-        NotificationFilter filter = new NotificationFilter(userId, type, status);
+        NotificationFilter filter = new NotificationFilter(userId, type, status, q);
         log.info("GET /notifications/search {} page={} size={}", filter, page, size);
         return toResponse(service.search(filter, pageable(page, size)));
     }

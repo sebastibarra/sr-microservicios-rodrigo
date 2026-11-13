@@ -20,6 +20,8 @@ public class NotificationMapper {
         return new NotificationDto()
                 .id(entity.getId())
                 .userId(entity.getUser().getId())
+                .userName(entity.getUser().getFirstName() + " " + entity.getUser().getLastName()
+                        + " · " + entity.getUser().getEmail())
                 .type(NotificationTypeDto.fromValue(entity.getType().name()))
                 .channel(NotificationChannelDto.fromValue(entity.getChannel().name()))
                 .status(NotificationStatusDto.fromValue(entity.getStatus().name()))
