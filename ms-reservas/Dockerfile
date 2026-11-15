@@ -10,7 +10,7 @@ WORKDIR /build/app
 COPY pom.xml ./
 COPY src ./src
 RUN --mount=type=cache,target=/root/.m2,sharing=locked mvn -B -q package -DskipTests \
-    && find target -maxdepth 1 -name '*.jar' ! -name '*-plain.jar' -exec cp {} /build/app.jar \;
+    && find target -maxdepth 1 \( -name '*.jar' -o -name '*.war' \) ! -name '*-plain.jar' -exec cp {} /build/app.jar \;
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
