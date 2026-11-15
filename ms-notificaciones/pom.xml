@@ -11,6 +11,7 @@
 	<groupId>com.reservas</groupId>
 	<artifactId>ms-notificaciones</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
 	<name>ms-notificaciones</name>
 	<description>Microservicio de notificaciones por correo (plantillas, envios y formulario de contacto)</description>
 	<properties>
@@ -31,6 +32,12 @@
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>
+		<!-- Tomcat lo provee el servidor cuando se despliega el WAR; java -jar sigue funcionando -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<!-- Serializacion JSON de la cache Redis con fechas java.time -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
