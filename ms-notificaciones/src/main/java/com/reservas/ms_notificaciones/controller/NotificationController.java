@@ -47,6 +47,14 @@ public class NotificationController extends PaginatedBaseController {
         return service.send(request);
     }
 
+    @PostMapping("/dispatch")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+    @Operation(summary = "Send pending notifications now (same job the scheduler runs every 2 minutes)")
+    public NotificationService.DispatchResult dispatch() {
+        log.info("POST /notifications/dispatch");
+        return service.dispatchPending();
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @Operation(summary = "Get a notification by id")

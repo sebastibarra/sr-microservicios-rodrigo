@@ -44,6 +44,7 @@ public class ReservationService extends BaseService<Reservation> {
     private final ConsultationTypeService consultationTypeService;
     private final SettingService settingService;
     private final BookingProperties booking;
+    private final ReservationNotifier notifier;
 
     public ReservationService(
             ReservationRepository repository,
@@ -52,7 +53,8 @@ public class ReservationService extends BaseService<Reservation> {
             TimeSlotService timeSlotService,
             ConsultationTypeService consultationTypeService,
             SettingService settingService,
-            BookingProperties booking
+            BookingProperties booking,
+            ReservationNotifier notifier
     ) {
         super(repository, "Reservation");
         this.repository = repository;
@@ -62,6 +64,7 @@ public class ReservationService extends BaseService<Reservation> {
         this.consultationTypeService = consultationTypeService;
         this.settingService = settingService;
         this.booking = booking;
+        this.notifier = notifier;
     }
 
     @Transactional
@@ -78,6 +81,7 @@ public class ReservationService extends BaseService<Reservation> {
         Reservation reservation = mapper.toEntity(request, student, slot, types);
         reservation.confirm();
         Reservation saved = repository.save(reservation);
+        notifier.reservationConfirmed(saved);   // outbox: misma transacción que la reserva
         log.info("Reservation {} confirmed, time slot {} is now {}", saved.getId(), slot.getId(), slot.getStatus());
         return mapper.toDto(saved);
     }
@@ -135,6 +139,7 @@ public class ReservationService extends BaseService<Reservation> {
         timeSlotService.lockForUpdate(reservation.getTimeSlot().getId());
         reservation.cancel();
         Reservation saved = repository.save(reservation);
+        notifier.reservationCancelled(saved);   // outbox: misma transacción que la cancelación
         log.info("Reservation {} cancelled, time slot {} released", id, saved.getTimeSlot().getId());
         return mapper.toDto(saved);
     }

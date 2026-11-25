@@ -110,9 +110,15 @@ class NotificationFlowIntegrationTest {
                         .content("{\"userId\":\"" + userId + "\",\"type\":\"REMINDER\",\"payload\":{\"date\":\"2026-11-01\"}}"))
                 )
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.status").value("SENT"))
+                .andExpect(jsonPath("$.status").value("PENDING"))
                 .andExpect(jsonPath("$.userId").value(userId.toString()))
                 .andExpect(jsonPath("$.payload.date").value("2026-11-01"));
+
+        // El cron (o el botón del administrador) envía las pendientes
+        mvc.perform(asAdmin(post("/notifications/dispatch")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.processed").value(1))
+                .andExpect(jsonPath("$.sent").value(1));
 
         mvc.perform(asAdmin(get("/notifications/search").param("userId", userId.toString()).param("status", "SENT")))
                 .andExpect(status().isOk())
